@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature & Philosophy</title>
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: #000;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: Georgia, serif;
+}
+
+#quote-container {
+    position: fixed;
+
+    left: 50%;
+    bottom: 40px; /* distance from bottom */
+
+    transform: translateX(-50%);
+
+    width: 80%;
+    max-width: 1200px;
+
+    text-align: center;
+
+    color: rgba(255, 255, 255, 0.8);
+
+    text-shadow:
+        0 2px 8px rgba(0,0,0,0.8),
+        0 0 20px rgba(0,0,0,0.5);
+
+    z-index: 100;
+}
+
+#quote {
+    font-size: clamp(24px, 2vw, 42px);
+    font-style: italic;
+    line-height: 1.5;
+}
+
+#author {
+    margin-top: 10px;
+    font-size: clamp(16px, 1vw, 22px);
+}
+</style>
+</head>
+<body>
+
+<div id="quote-container">
+    <div id="quote">Loading...</div>
+    <div id="author"></div>
+</div>
+
+<script>
+async function loadWallpaper() {
+    document.body.style.backgroundImage = "none";
+
+    const imageUrl =
+        `https://picsum.photos/1920/1080?random=${Date.now()}`;
+
+    return new Promise((resolve) => {
+        const img = new Image();
+
+        img.onload = () => {
+            document.body.style.backgroundImage =
+                `url('${imageUrl}')`;
+            resolve();
+        };
+
+        img.onerror = resolve;
+        img.src = imageUrl;
+    });
+}
+
+async function loadQuote() {
+    try {
+        const res = await fetch(
+            "https://dummyjson.com/quotes/random?ts=" + Date.now()
+        );
+        const data = await res.json();
+
+        document.getElementById("quote").textContent =
+            `"${data.quote}"`;
+
+        document.getElementById("author").textContent =
+            `— ${data.author}`;
+    }
+    catch (err) {
+        document.getElementById("quote").textContent =
+            '"The unexamined life is not worth living."';
+
+        document.getElementById("author").textContent =
+            "— Socrates";
+    }
+}
+async function refresh() {
+    await Promise.all([
+        loadWallpaper(),
+        loadQuote()
+    ]);
+}
+
+// Initial load
+refresh();
+
+// Change both wallpaper and quote
+document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" || e.key === "Enter") {
+        e.preventDefault();
+        refresh();
+    }
+});
+
+document.addEventListener("click", refresh);
+</script>
+
+</body>
+</html>
